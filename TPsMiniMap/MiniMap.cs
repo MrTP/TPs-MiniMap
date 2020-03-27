@@ -54,25 +54,44 @@
 			
 			if (PlayerCharacterMasterController.instances.Count > 0)
 			{
-				CharacterBody body = LocalUserManager.GetFirstLocalUser().currentNetworkUser.GetCurrentBody();
-				center = body.transform.position;
-				
-				Marker newMarker = UnityEngine.Object.Instantiate<GameObject>(this.markerPrefab, this.rectTranform).GetComponent<Marker>();
-				newMarker.gameObject.SetPosition(0.465f, 0.465f, 0.07f, 0.07f);
-				newMarker.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 0);
-				this.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, rotation);
-				newMarker.GetComponent<Image>().sprite = Marker.PlayerSprite;
-				newMarker.GetComponent<Image>().color = new Color(50 / 256f, 240 / 256f, 30 / 256f);
-				markers.Add(newMarker);
+				try
+				{
+					CharacterBody body = LocalUserManager.GetFirstLocalUser().currentNetworkUser.GetCurrentBody();
+					if (body != null)
+					{
+						center = body.transform.position;
+
+						Marker newMarker = UnityEngine.Object.Instantiate<GameObject>(this.markerPrefab, this.rectTranform).GetComponent<Marker>();
+						newMarker.gameObject.SetPosition(0.465f, 0.465f, 0.07f, 0.07f);
+						newMarker.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 0);
+						this.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, rotation);
+						newMarker.GetComponent<Image>().sprite = Marker.PlayerSprite;
+						newMarker.GetComponent<Image>().color = new Color(50 / 256f, 240 / 256f, 30 / 256f);
+						markers.Add(newMarker);
+
+					}
+
+				}
+				catch
+				{
+				}
+
 			}
 
 
 			foreach (PlayerCharacterMasterController other in PlayerCharacterMasterController.instances)
 			{
-				if (other.networkUser != LocalUserManager.GetFirstLocalUser().currentNetworkUser)
+				try
 				{
-					AddMarker(other.master.GetBodyObject().transform, 2, new Color(30 / 256f, 160 / 256f, 13 / 256f));
+					if (other.networkUser != LocalUserManager.GetFirstLocalUser().currentNetworkUser && other.master.GetBodyObject() != null)
+					{
+						AddMarker(other.master.GetBodyObject().transform, 2, new Color(30 / 256f, 160 / 256f, 13 / 256f));
+					}
 				}
+				catch
+				{
+				}
+
 			}
 
 			for (int i = 0; i < CharacterMaster.readOnlyInstancesList.Count; i++)
@@ -113,7 +132,15 @@
 				{
 					if (((IInteractable)monoBehaviour).ShouldShowOnScanner())
 					{
-						AddMarker(monoBehaviour.transform, 2, Color.yellow);
+						if (monoBehaviour is PurchaseInteraction)
+						{
+							AddMarker(monoBehaviour.transform, 2, Color.yellow);
+						}
+						else
+						{
+							AddMarker(monoBehaviour.transform, 2, Color.white);
+						}
+						
 					}
 				}
 			}
@@ -200,6 +227,8 @@
 				sprite = value;
 			}
 		}
+
+
 
 		private Vector2 Rotate(Vector2 vector, float angle)
 		{

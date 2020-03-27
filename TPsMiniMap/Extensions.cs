@@ -29,8 +29,16 @@ namespace TPsMap
         public static Sprite CreateSpriteFromFile(string name)
         {
             Texture2D tex = new Texture2D(1, 1);
-
-            tex.LoadImage(File.ReadAllBytes($"{Path.GetDirectoryName(typeof(TPsMap).Assembly.Location)}/textures/" + name));
+            byte[] data = null;
+            try
+            {
+                data = File.ReadAllBytes($"{Path.GetDirectoryName(typeof(TPsMap).Assembly.Location)}/textures/" + name);
+            }
+            catch
+            {
+                data = File.ReadAllBytes($"{Path.GetDirectoryName(typeof(TPsMap).Assembly.Location)}/" + name);
+            }
+            tex.LoadImage(data);
             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(tex.width / 2, tex.height / 2));
 
         }
